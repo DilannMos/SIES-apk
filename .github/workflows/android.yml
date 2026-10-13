@@ -1,0 +1,50 @@
+name: Crear APK de SIES
+
+# Se ejecuta solo cada vez que subes cambios a GitHub, o cuando tú lo pidas
+# desde la pestaña Actions → "Crear APK de SIES" → Run workflow.
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar Capacitor
+        run: npm install
+
+      - name: Crear el proyecto Android
+        run: npx cap add android
+
+      - name: Generar íconos de la app
+        continue-on-error: true      # si falla, la app usa el ícono por defecto
+        run: npx --yes @capacitor/assets generate --android
+
+      - name: Copiar la web dentro de la app
+        run: npx cap sync android
+
+      - name: Compilar el APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Guardar el APK para descargarlo
+        uses: actions/upload-artifact@v4
+        with:
+          name: SIES-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk

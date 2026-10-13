@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SIES — Sistema Inteligente para Estudiantes</title>
+  <meta name="description" content="Sube tus apuntes y conviértelos en resúmenes, tarjetas de estudio y cuestionarios. SIES te ayuda a repasar mejor con apoyo de IA.">
+  <meta name="theme-color" content="#4f46e5">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SIES — Sistema Inteligente para Estudiantes">
+  <meta property="og:description" content="Convierte tus apuntes en resúmenes, tarjetas de estudio y cuestionarios con apoyo de IA.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SIES">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <header class="topbar">
+    <a class="brand" href="#inicio" data-view="inicio" aria-label="SIES, ir al inicio"><span class="brand-icon" aria-hidden="true">🎓</span><span>SIES</span></a>
+    <nav id="mainNav" aria-label="Principal">
+      <a class="nav-link active" href="#inicio" data-view="inicio" aria-current="page">Inicio</a>
+      <a class="nav-link" href="#materias" data-view="materias">Materias</a>
+      <a class="nav-link" href="#biblioteca" data-view="biblioteca">Biblioteca</a>
+      <a class="nav-link" href="#repasar" data-view="repasar">Repasar</a>
+      <a class="nav-link" href="#progreso" data-view="progreso">Progreso</a>
+    </nav>
+    <button class="install hidden" id="installBtn" type="button" aria-label="Instalar app"><span aria-hidden="true">⬇️</span> <span class="label">Instalar app</span></button>
+    <button class="profile" id="profileBtn" type="button" aria-label="Perfil"><span aria-hidden="true">👤</span> <span class="label">Estudiante</span></button>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú"><span aria-hidden="true">☰</span></button>
+  </header>
+
+  <main class="container" id="main" tabindex="-1">
+    <noscript><p class="tip">SIES necesita JavaScript para funcionar. Actívalo en tu navegador y vuelve a cargar la página.</p></noscript>
+
+    <section id="v-inicio" class="view active-view">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">TU ESPACIO DE ESTUDIO</p>
+          <h1 tabindex="-1">¿Qué quieres estudiar hoy?</h1>
+          <p class="subtitle">Sube tus materiales y conviértelos en resúmenes, tarjetas y cuestionarios.</p>
+        </div>
+        <button class="hero-badge" type="button" data-view="repasar"><span aria-hidden="true">🧠</span> Repasar ahora</button>
+      </div>
+
+      <div class="upload-card" id="dropzone" role="group" aria-labelledby="uploadTitle">
+        <div class="upload-icon" aria-hidden="true">📤</div>
+        <h2 id="uploadTitle">Sube tu material de estudio</h2>
+        <p>Arrastra archivos aquí o selecciónalos desde tu dispositivo.</p>
+        <p class="formats">PDF, PPTX, DOCX, JPG o PNG · hasta 20 MB por archivo</p>
+        <input type="file" id="fileInput" multiple accept=".pdf,.pptx,.docx,.jpg,.jpeg,.png" aria-label="Seleccionar archivos de estudio" tabindex="-1">
+        <button class="primary" id="selectFiles" type="button">Seleccionar archivos</button>
+        <div id="uploadStatus" class="upload-status" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <h2>Tu biblioteca</h2>
+          <p>Continúa donde lo dejaste.</p>
+        </div>
+        <button class="ghost" type="button" data-view="biblioteca">Ver biblioteca completa</button>
+      </div>
+      <div id="materialPreview" class="material-grid"></div>
+
+      <div class="section-head">
+        <div>
+          <h2>Para repasar hoy</h2>
+          <p>Conceptos que conviene practicar.</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat"><span aria-hidden="true">🧠</span><strong id="statReview">0</strong><small>Tarjetas por repasar hoy</small></div>
+        <div class="stat"><span aria-hidden="true">✨</span><strong id="statNew">0</strong><small>Tarjetas nuevas</small></div>
+        <div class="stat"><span aria-hidden="true">🔥</span><strong id="statStreak">0 días</strong><small>Racha actual</small></div>
+        <div class="stat"><span aria-hidden="true">📈</span><strong id="statMastered">0%</strong><small>Conceptos dominados</small></div>
+      </div>
+    </section>
+
+    <section id="v-materias" class="view">
+      <div class="page-title"><h1 tabindex="-1">Materias</h1><p>Organiza tus materiales por asignatura.</p></div>
+      <div id="subjectGrid" class="subject-grid"></div>
+    </section>
+
+    <section id="v-biblioteca" class="view">
+      <div class="page-title"><h1 tabindex="-1">Biblioteca</h1><p>Elige un material para generar herramientas de estudio.</p></div>
+      <div class="library-tools">
+        <div class="lib-search">
+          <label class="sr-only" for="libSearch">Buscar por nombre</label>
+          <input class="ask-input" id="libSearch" type="search" placeholder="Buscar por nombre…" autocomplete="off">
+        </div>
+        <div>
+          <label class="sr-only" for="libSubject">Filtrar por materia</label>
+          <select class="ask-input" id="libSubject"></select>
+        </div>
+        <div>
+          <label class="sr-only" for="libSort">Ordenar por</label>
+          <select class="ask-input" id="libSort">
+            <option value="recent">Más recientes</option>
+            <option value="name">Nombre (A–Z)</option>
+            <option value="progress">Mayor progreso</option>
+          </select>
+        </div>
+      </div>
+      <p class="lib-count" id="libCount" role="status" aria-live="polite"></p>
+      <div id="allMaterials" class="material-grid"></div>
+    </section>
+
+    <section id="v-repasar" class="view">
+      <div class="page-title"><h1 tabindex="-1">Repasar</h1><p>Practica los conceptos que necesitan atención.</p></div>
+      <div class="deck-filter" id="deckFilter" role="group" aria-label="Elegir qué repasar"></div>
+      <div class="deck-tools">
+        <button class="mini" type="button" id="newCardBtn">＋ Nueva tarjeta</button>
+        <button class="mini" type="button" id="manageCardsBtn">Administrar tarjetas</button>
+      </div>
+      <div class="study-panel">
+        <div id="deckActive">
+          <div class="study-top"><span id="cardCount" aria-live="polite"></span><span id="cardTopic"></span></div>
+          <div class="flashcard" id="flashcard">
+            <span class="tag">PREGUNTA</span>
+            <h2 id="cardQuestion"></h2>
+            <p class="answer hidden" id="cardAnswer"></p>
+            <button class="primary" id="showAnswer" type="button">Mostrar respuesta</button>
+          </div>
+          <div class="rating hidden" id="rating" role="group" aria-labelledby="ratingLabel">
+            <p id="ratingLabel">¿Qué tan bien conocías esta tarjeta?</p>
+            <button type="button" data-rating="1"><span aria-hidden="true">😵</span> No sabía</button>
+            <button type="button" data-rating="2"><span aria-hidden="true">😐</span> Más o menos</button>
+            <button type="button" data-rating="3"><span aria-hidden="true">🙂</span> Bien</button>
+            <button type="button" data-rating="4"><span aria-hidden="true">🔥</span> La domino</button>
+          </div>
+        </div>
+        <div class="flashcard hidden" id="deckDone" tabindex="-1">
+          <h2>¡Terminaste el repaso!</h2>
+          <p id="deckSummary" class="answer"></p>
+          <div id="deckReinforce" class="reinforce"></div>
+          <button class="primary" id="restartDeck" type="button">Repasar de nuevo</button>
+        </div>
+        <div class="flashcard hidden" id="deckEmpty" tabindex="-1">
+          <h2 id="deckEmptyTitle"></h2>
+          <p id="deckEmptyMsg" class="answer"></p>
+          <div id="deckEmptyActions"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="v-progreso" class="view">
+      <div class="page-title"><h1 tabindex="-1">Mi progreso</h1><p>Observa cómo avanza tu aprendizaje.</p></div>
+      <div class="progress-layout">
+        <div class="big-progress"><div class="circle" id="overallCircle"><strong id="overallValue">0%</strong><span>Dominado</span></div></div>
+        <div>
+          <p class="subtitle" id="progressSummary"></p>
+          <div class="progress-list" id="progressList"></div>
+        </div>
+      </div>
+      <div class="tip"><span aria-hidden="true">💡</span> <strong>Consejo:</strong> repasar los conceptos difíciles en sesiones cortas y frecuentes ayuda a recordarlos por más tiempo. Una tarjeta cuenta como dominada cuando la repasas bien varias veces seguidas.</div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>SIES es un prototipo: los resúmenes, cuestionarios y respuestas del tutor son demostraciones.</p>
+    <p>Tus materias, tarjetas y progreso se guardan solo en este navegador. De los archivos que subes se guarda el nombre, no el contenido.</p>
+    <p id="installHelp" class="hidden"></p>
+    <p><button class="linklike" id="resetData" type="button">Borrar mis datos y restaurar el ejemplo</button></p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal hidden" id="materialModal">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="close" id="closeModal" type="button" aria-label="Cerrar ventana">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
